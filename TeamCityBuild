@@ -1,0 +1,53 @@
+Step 1: Install TeamCity
+Download and Install TeamCity Server: Follow the instructions on the TeamCity official site to set up the TeamCity server.
+Install TeamCity Build Agent: Set up a build agent on a machine with Unreal Engine 5.4 installed.
+Step 2: Set Up a New Project and Build Configuration in TeamCity
+Create a New Project: In the TeamCity web interface, create a new project.
+Create a New Build Configuration: Inside your project, create a new build configuration.
+Step 3: Configure VCS Root
+Add VCS Root: Connect your project to your version control system (e.g., Git).
+Specify the Repository URL: Provide the URL to your repository and any necessary authentication details.
+Step 4: Create the Build Automation Script
+Create a PowerShell script that TeamCity will execute to build your Unreal Engine project.
+
+
+# Path to Unreal Engine Build Tool
+$UE4BuildTool = "C:\Path\To\UnrealEngine\UE_5.4\Engine\Build\BatchFiles\RunUAT.bat"
+
+# Path to your Unreal project
+$ProjectPath = "C:\Path\To\YourProject\YourProject.uproject"
+
+# Configuration settings
+$BuildConfiguration = "Development"
+$Platform = "Win64"
+
+# Build command
+& $UE4BuildTool BuildCookRun -project="$ProjectPath" -noP4 -platform=$Platform -clientconfig=$BuildConfiguration -serverconfig=$BuildConfiguration -cook -allmaps -build -stage -pak -archive -archivedirectory="C:\Path\To\Output"
+
+# Check if the build succeeded
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Build failed with exit code $LASTEXITCODE"
+    exit 1
+} else {
+    Write-Output "Build succeeded"
+    exit 0
+}
+
+
+
+Step 5: Configure Build Steps in TeamCity
+Add a Build Step: In your build configuration, add a new build step.
+Choose Runner Type: Select "PowerShell".
+Script Source: Choose "Script file" and specify the path to build.ps1.
+Script Content: Alternatively, you can directly input the script content if you prefer to keep the script inside TeamCity.
+Step 6: Set Up Build Triggers
+Add a Build Trigger: Go to the "Triggers" tab in your build configuration.
+Choose Trigger Type: Select "VCS Trigger" to automatically trigger a build on every commit.
+Step 7: (Optional) Configure Artifact Paths
+Artifact Paths: In the "General Settings" tab of your build configuration, specify the paths to the build artifacts you want to preserve.
+For example: C:\Path\To\Output\** => BuildArtifacts.zip
+Step 8: Test the Build
+Run Build: Trigger the build manually to test if everything is set up correctly.
+Check Logs: Review the build logs in TeamCity to ensure the build process is working as expected.
+Step 9: Set Up Notifications (Optional)
+Notification Rules: Set up notifications for build successes or failures to keep your team informed.
